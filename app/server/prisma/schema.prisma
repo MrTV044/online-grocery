@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Roles{
+  USER 
+  LOCAL_ADMIN
+  GLOBAL_SUPER_ADMIN
+  // LOCAL_ADMIN: local store admin
+  // GLOBAL_SUPER_ADMIN: global store admin
+}
+
+
+model User {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  password       String
+  role           Roles    @default(USER)
+  inventory       Inventory[]
+
+  Order Order[]
+
+  // user authorization
+  // inventory is used for local admin to add inventory
+}
+
+model Inventory{
+  id           String   @id @default(uuid())
+  name         String
+  description String
+  quantity     Int
+  price        Int
+  category     String
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String
+
+  Order Order[]
+
+  // used of product management
+}
+
+model Order {
+  id           String   @id @default(uuid())
+  userId  String
+  user User @relation(fields: [userId], references: [id])
+  inventoryId String
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
+  createdAt DateTime @default(now())
+  // shopping cart items will be shown through Order
+  // order management will be managed through Order
+  // payment will be made through Order
+}
+
+model discount{
+  id           String   @id @default(uuid())
+  percentage     Int
+}
