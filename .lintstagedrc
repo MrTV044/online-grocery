@@ -1,0 +1,8 @@
+{
+  "apps/web/**/*.{ts,js,tsx,jsx}": [
+    "eslint --fix --config apps/web/eslint.config.mjs"
+  ],
+  "apps/api/**/*.{ts,js,tsx,jsx}": [
+    "eslint --fix --config apps/api/eslint.config.mjs"
+  ]
+}
