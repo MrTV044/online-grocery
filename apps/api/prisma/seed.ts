@@ -1,186 +1,93 @@
-import { PrismaClient, Role, DiscountType, OrderStatus } from '@prisma/client';
+import { PrismaClient, DiscountType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Deklarasi data untuk User
-  const adminSuper = {
-    name: 'Admin Super',
-    email: 'admin@super.com',
-    password: 'superadminpassword',
-    role: Role.SUPER_ADMIN,
-    emailConfirmed: true,
-    referralCode: 'SUPER123',
-  };
-
-  const storeAdmin = {
-    name: 'Store Admin',
-    email: 'store@admin.com',
-    password: 'storeadminpassword',
-    role: Role.STORE_ADMIN,
-    emailConfirmed: true,
-    referralCode: 'STORE123',
-  };
-
-  const customerUser = {
-    name: 'Customer User',
-    email: 'customer@user.com',
-    password: 'customerpassword',
-    role: Role.CUSTOMER,
-    emailConfirmed: true,
-    referralCode: 'CUSTOMER123',
-  };
-
-  // Membuat User
-  await prisma.user.create({
-    data: adminSuper,
+  // Seed untuk tabel Store
+  await prisma.store.createMany({
+    data: Array.from({ length: 100 }).map((_, index) => ({
+      name: `Store ${index + 1}`,
+      userId: 1,
+      address: `Address ${index + 1}`,
+      latitude: 40.7128 + index * 0.01,
+      longitude: -74.006 + index * 0.01,
+      maxDistance: 50.0,
+    })),
   });
 
-  const user2 = await prisma.user.create({
-    data: storeAdmin,
+  // Seed untuk tabel Category
+  await prisma.category.createMany({
+    data: Array.from({ length: 10 }).map((_, index) => ({
+      name: `Category ${index + 1}`,
+    })),
   });
 
-  const user3 = await prisma.user.create({
-    data: customerUser,
+  // Seed untuk tabel Product
+  await prisma.product.createMany({
+    data: Array.from({ length: 200 }).map((_, index) => ({
+      name: `Product ${index + 1}`,
+      description: `Description for Product ${index + 1}`,
+      price: parseFloat((Math.random() * 1000).toFixed(2)),
+      categoryId: (index % 10) + 1, // Assign product to category (1-10)
+      storeId: (index % 100) + 1, // Assign product to store (1-100)
+    })),
   });
 
-  // Deklarasi data untuk kategori produk
-  const categoryData = [{ name: 'Electronics' }, { name: 'Home Appliances' }];
-
-  // Membuat kategori produk
-  const category1 = await prisma.category.create({
-    data: categoryData[0],
+  // Seed untuk tabel Stock
+  await prisma.stock.createMany({
+    data: Array.from({ length: 200 }).map((_, index) => ({
+      productId: (index % 200) + 1, // Assign stock to product (1-200)
+      storeId: (index % 100) + 1, // Assign stock to store (1-100)
+      quantity: Math.floor(Math.random() * 100) + 1, // Random quantity between 1 and 100
+    })),
   });
 
-  const category2 = await prisma.category.create({
-    data: categoryData[1],
+  // Seed untuk tabel Discount
+  await prisma.discount.createMany({
+    data: Array.from({ length: 100 }).map((_, index) => ({
+      productId: (index % 200) + 1, // Assign discount to product (1-200)
+      storeId: (index % 100) + 1, // Assign discount to store (1-100)
+      type:
+        index % 2 === 0 ? DiscountType.PERCENTAGE : DiscountType.FIXED_AMOUNT,
+      value: Math.random() * 50 + 5, // Random discount value between 5 and 50
+      minPurchase: Math.random() * 500 + 50, // Random min purchase between 50 and 500
+      buyOneGetOne: Math.random() > 0.5, // Random BuyOneGetOne flag
+      maxDiscount: (Math.random() * 100).toFixed(2),
+    })),
   });
 
-  // Deklarasi data untuk toko
-  const storeData = {
-    name: 'Super Store',
-    userId: user2.id,
-    address: '123 Store St, Cityville',
-    latitude: 12.34,
-    longitude: 56.78,
-    maxDistance: 50,
-  };
-
-  // Membuat Toko
-  const store = await prisma.store.create({
-    data: storeData,
+  // Seed untuk tabel SalesReport
+  await prisma.salesReport.createMany({
+    data: Array.from({ length: 1000 }).map((_, index) => ({
+      storeId: (index % 100) + 1, // Assign sales report to store (1-100)
+      productId: (index % 200) + 1, // Assign sales report to product (1-200)
+      Quantity: Math.floor(Math.random() * 50) + 1, // Random quantity between 1 and 50
+      total: Math.floor(Math.random() * 1000) + 50, // Random total value between 50 and 1000
+      month: Math.floor(Math.random() * 12) + 1, // Random month between 1 and 12
+      year: 2025, // Hardcoded year
+    })),
   });
 
-  // Deklarasi data produk
-  const productData = [
-    {
-      name: 'Smartphone',
-      description: 'Latest model of smartphone',
-      price: 499.99,
-      categoryId: category1.id,
-      storeId: store.id,
-    },
-    {
-      name: 'Washing Machine',
-      description: 'High-efficiency washing machine',
-      price: 349.99,
-      categoryId: category2.id,
-      storeId: store.id,
-    },
-  ];
-
-  // Membuat Produk
-  const product1 = await prisma.product.create({
-    data: productData[0],
+  // Seed untuk tabel StockReport
+  await prisma.stockReport.createMany({
+    data: Array.from({ length: 500 }).map((_, index) => ({
+      storeId: (index % 100) + 1, // Assign stock report to store (1-100)
+      productId: (index % 200) + 1, // Assign stock report to product (1-200)
+      startStock: Math.floor(Math.random() * 100) + 1, // Random start stock between 1 and 100
+      endStock: Math.floor(Math.random() * 100) + 1, // Random end stock between 1 and 100
+      totalAdded: Math.floor(Math.random() * 50) + 1, // Random total added between 1 and 50
+      totalReduced: Math.floor(Math.random() * 50) + 1, // Random total reduced between 1 and 50
+      month: Math.floor(Math.random() * 12) + 1, // Random month between 1 and 12
+      year: 2025, // Hardcoded year
+    })),
   });
 
-  const product2 = await prisma.product.create({
-    data: productData[1],
-  });
-
-  // Deklarasi data stok
-  const stockData = [
-    { productId: product1.id, storeId: store.id, quantity: 100 },
-    { productId: product2.id, storeId: store.id, quantity: 50 },
-  ];
-
-  // Membuat Stok
-  await prisma.stock.create({
-    data: stockData[0],
-  });
-
-  await prisma.stock.create({
-    data: stockData[1],
-  });
-
-  // Deklarasi data diskon
-  const discountData = [
-    {
-      productId: product1.id,
-      storeId: store.id,
-      type: DiscountType.PERCENTAGE,
-      value: 10,
-      maxDiscount: 50,
-    },
-    {
-      productId: product2.id,
-      storeId: store.id,
-      type: DiscountType.FIXED_AMOUNT,
-      value: 30,
-      maxDiscount: 50,
-    },
-  ];
-
-  // Membuat diskon
-  await prisma.discount.create({
-    data: discountData[0],
-  });
-
-  await prisma.discount.create({
-    data: discountData[1],
-  });
-
-  // Deklarasi data order
-  const orderData = {
-    userId: user3.id,
-    storeId: store.id,
-    orderNumber: 'ORD001',
-    addressId: 'ADDRESS001', // Example address ID, make sure to create an address in actual use
-    orderStatus: OrderStatus.PENDING_PAYMENT,
-    paymentMethod: 'BANK_TRANSFER',
-    paymentDueDate: new Date(),
-    shippingMethod: 'Standard',
-    shippingCost: 10,
-    total: 499.99,
-    discountTotal: 50,
-    notes: 'Please deliver with care',
-  };
-
-  // Membuat order
-  const order1 = await prisma.order.create({
-    data: orderData,
-  });
-
-  // Deklarasi data order item
-  const orderItemData = {
-    orderId: order1.id,
-    productId: product1.id,
-    quantity: 1,
-    price: 499.99,
-  };
-
-  // Membuat Order Item
-  await prisma.orderItem.create({
-    data: orderItemData,
-  });
-
-  console.log('Seed data created successfully!');
+  console.log('Seed data successfully added!');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    throw e;
   })
   .finally(async () => {
     await prisma.$disconnect();
