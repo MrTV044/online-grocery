@@ -9,6 +9,7 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 import adminRouter from '../src/routers/admin-router.js';
 import productRouter from '../src/routers/product-router.js';
 import inventoryRouter from '../src/routers/inventory-router.js';
+import discountRouter from './routers/discount-router.js';
 import { VerifyToken } from './middlewares/admin-middleware.js';
 
 const app: Application = express();
@@ -32,6 +33,7 @@ app.get('/api/v1/status', (_req: Request, res: Response) => {
 app.use('/api/v1/admin', VerifyToken, adminRouter);
 app.use('/api/v1/product', productRouter);
 app.use('/api/v1/inventory', inventoryRouter);
+app.use('/api/v1/discount', discountRouter);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
