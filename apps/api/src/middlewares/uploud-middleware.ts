@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 
 // File filter untuk validasi jenis file
 const fileFilter = (
-  req: Request,
+  _req: Request,
   file: Express.Multer.File,
   cb: FileFilterCallback,
 ): void => {
@@ -35,7 +35,7 @@ const fileFilter = (
   } else {
     return cb(
       new Error('Only .jpg, .jpeg, .png, .gif files are allowed!'),
-      //   false,
+      // false,
     ); // Jika tidak valid
   }
 };
