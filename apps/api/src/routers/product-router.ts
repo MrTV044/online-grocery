@@ -21,7 +21,7 @@ const router = express.Router();
 router.route('/products').get(getProducts);
 
 // Rute untuk mendapatkan detail produk berdasarkan ID (User Site)
-router.route('/product/:id').get(getProductDetail);
+router.route('/products/:id').get(getProductDetail);
 
 // Rute untuk menambahkan produk ke keranjang (User Site)
 router.route('/cart').post(addToCart);
@@ -31,13 +31,13 @@ router.route('/cart').post(addToCart);
 router.route('/admin/products').get(getProductsAdmin);
 
 // Rute untuk membuat produk baru (Admin Site)
-router.route('/admin/product').post(createProduct);
+router.route('/admin/products').post(createProduct);
 
 // Rute untuk memperbarui produk berdasarkan productId (Admin Site)
-router.route('/admin/product/:id').put(updateProduct);
+router.route('/admin/products/:id').put(updateProduct);
 
 // Rute untuk menghapus produk berdasarkan productId (Admin Site)
-router.route('/admin/product/:id').delete(deleteProduct);
+router.route('/admin/products/:id').delete(deleteProduct);
 
 // Rute untuk mengupload gambar produk (Admin Site)
 router
