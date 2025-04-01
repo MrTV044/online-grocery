@@ -1,8 +1,24 @@
 import { PrismaClient, Role, DiscountType, OrderStatus } from '@prisma/client';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.cartItem.deleteMany();
+  await prisma.cart.deleteMany();
+  await prisma.discountReport.deleteMany();
+  await prisma.discount.deleteMany();
+  await prisma.productImage.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.category.deleteMany();
+  await prisma.store.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.confirmToken.deleteMany();
+  await prisma.address.deleteMany();
+  await prisma.stock.deleteMany(); // Delete dependent records first
+  await prisma.product.deleteMany();
   // Deklarasi data untuk User
   const adminSuper = {
     name: 'Admin Super',
@@ -79,6 +95,7 @@ async function main() {
       price: 499.99,
       categoryId: category1.id,
       storeId: store.id,
+      weight: 4.5,
     },
     {
       name: 'Washing Machine',
@@ -86,6 +103,7 @@ async function main() {
       price: 349.99,
       categoryId: category2.id,
       storeId: store.id,
+      weight: 8.2,
     },
   ];
 
@@ -173,6 +191,72 @@ async function main() {
   await prisma.orderItem.create({
     data: orderItemData,
   });
+
+  const productList = await prisma.product.findMany();
+  const userList = await prisma.user.findMany();
+  const storeList = await prisma.store.findMany();
+
+  // Create Carts
+  await Promise.all(
+    userList.map((user) =>
+      prisma.cart.create({
+        data: {
+          userId: user.id,
+          totalPrice: 0,
+        },
+      }),
+    ),
+  );
+
+  const cartList = await prisma.cart.findMany();
+
+  // Create CartItems
+  await Promise.all(
+    cartList.map((cart, index) =>
+      prisma.cartItem.create({
+        data: {
+          cartId: cart.id,
+          productId: productList[index % productList.length].id,
+          quantity: 2,
+        },
+      }),
+    ),
+  );
+
+  // Create Orders
+  await Promise.all(
+    userList.map((user, index) =>
+      prisma.order.create({
+        data: {
+          userId: user.id,
+          storeId: storeList[index % storeList.length].id,
+          orderNumber: `ORDER${index + 1}`,
+          addressId: 'testing', // Link to the created address
+          orderStatus: 'PENDING_PAYMENT',
+          paymentMethod: 'BANK_TRANSFER',
+          paymentDueDate: new Date(Date.now() + 1000 * 60 * 60 * 24),
+          shippingMethod: 'Standard',
+          shippingCost: 5.0,
+          total: 100.0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      }),
+    ),
+  );
+
+  // Create ConfirmTokens
+  await Promise.all(
+    userList.map((user) =>
+      prisma.confirmToken.create({
+        data: {
+          token: crypto.randomBytes(20).toString('hex'),
+          expiredDate: new Date(Date.now() + 1000 * 60 * 60 * 24), // 1 day expiration
+          userId: user.id,
+        },
+      }),
+    ),
+  );
 
   console.log('Seed data created successfully!');
 }
