@@ -1,4 +1,3 @@
-
 import { PrismaClient, OrderStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
@@ -6,7 +5,6 @@ enum DiscountType {
   PERCENTAGE = 'PERCENTAGE',
   FIXED_AMOUNT = 'FIXED_AMOUNT',
 }
-
 
 const prisma = new PrismaClient();
 
@@ -204,7 +202,6 @@ async function main() {
       longitude: -74.006 + index * 0.01,
       maxDistance: 50.0,
     })),
-
   });
 
   // Seed untuk tabel Category
@@ -220,7 +217,6 @@ async function main() {
       name: `Category ${index + 1}`,
     })),
   });
-
 
   // Seed untuk tabel Product
   await prisma.product.createMany({
@@ -351,8 +347,6 @@ async function main() {
   console.log('✅ Cart Items seeded successfully!');
 
   console.log('✅ Order Items seeded successfully!');
-=======
-  });
 
   // Seed untuk tabel Discount
   await prisma.discount.createMany({
