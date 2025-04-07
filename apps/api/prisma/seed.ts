@@ -226,7 +226,6 @@ async function main() {
       price: parseFloat((Math.random() * 1000).toFixed(2)),
       categoryId: (index % 10) + 1, // Assign product to category (1-10)
       storeId: (index % 100) + 1, // Assign product to store (1-100)
-
       weight: 0.5 + Math.random() * 2.5, // Random weight between 0.5 and 3
     })),
   });

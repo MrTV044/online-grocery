@@ -8,7 +8,9 @@ import { notFoundMiddleware } from './middlewares/not-found.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import adminRouter from '../src/routers/admin-router.js';
 
-import addToCart from '../src/routers/add-to-cart-router.js';
+import addToCart from './routers/carting-router.js';
+import showAllCartItems from './routers/carting-router.js';
+import deleteCartItem from './routers/carting-router.js';
 
 import productRouter from '../src/routers/product-router.js';
 import inventoryRouter from '../src/routers/inventory-router.js';
@@ -33,7 +35,9 @@ app.get('/api/v1/status', (_req: Request, res: Response) => {
   res.status(200).json({ message: 'API is running' });
 });
 
-app.use('/api/v1/add-to-cart', addToCart);
+app.use('/api/v1/', addToCart);
+app.use('/api/v1/', showAllCartItems);
+app.use('/api/v1/', deleteCartItem);
 
 // routes admin
 app.use('/api/v1/admin', VerifyToken, adminRouter);
