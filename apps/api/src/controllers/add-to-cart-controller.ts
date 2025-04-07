@@ -1,17 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../configs/prisma.js';
 
-export async function addToCart(
+export const addToCart = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> => {
   try {
     const { userId, productId, quantity } = req.body;
 
     // Validate input
     if (!userId || !productId) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
     }
 
     // Check if the product has stock
@@ -23,24 +24,28 @@ export async function addToCart(
     });
 
     if (!product?.Stock || product.Stock.length === 0) {
-      return res.status(404).json({ message: 'Stock data not found' });
+      res.status(404).json({ message: 'Stock data not found' });
+      return;
     }
 
     if (product?.Stock[0]?.quantity < quantity) {
-      return res.status(404).json({ message: 'Product out of stock' });
+      res.status(404).json({ message: 'Product out of stock' });
+      return;
     }
 
     // Add to cart logic
     const cartItem = await prisma.cartItem.create({
       data: {
-        userId: userId,
+        cartId: userId,
         productId: productId,
         quantity: 1,
       },
     });
 
-    res.status(201).json({ ok: true, data: cartItem });
+    res
+      .status(201)
+      .json({ ok: true, data: cartItem, message: 'Product added to cart' });
   } catch (error) {
     next(error); // Pass the error to the error handler
   }
-}
+};
