@@ -15,7 +15,7 @@ import deleteCartItem from './routers/carting-router.js';
 import productRouter from '../src/routers/product-router.js';
 import inventoryRouter from '../src/routers/inventory-router.js';
 import discountRouter from './routers/discount-router.js';
-
+import reportRouter from './routers/report-router.js';
 import { VerifyToken } from './middlewares/admin-middleware.js';
 
 const app: Application = express();
@@ -44,6 +44,7 @@ app.use('/api/v1/admin', VerifyToken, adminRouter);
 app.use('/api/v1/product', productRouter);
 app.use('/api/v1/inventory', inventoryRouter);
 app.use('/api/v1/discount', discountRouter);
+app.use('/api/v1/report', reportRouter);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
