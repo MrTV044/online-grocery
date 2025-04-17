@@ -2,12 +2,12 @@
 import { Store } from '../app/types/inventory';
 
 interface StoreSelectorProps {
-  stores: Store[];
+  stores: Store[]; // Pastikan stores bertipe array
   onSelectStore: (store: Store) => void;
 }
 
 export default function StoreSelector({
-  stores,
+  stores = [], // Default ke array kosong jika stores tidak terisi
   onSelectStore,
 }: StoreSelectorProps) {
   return (

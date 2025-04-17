@@ -1,5 +1,5 @@
 // components/InventoryTable.tsx
-import { useState } from 'react'; // Tambahkan impor useState
+import { useState } from 'react';
 import { Product, Store } from '../app/types/inventory';
 import StockUpdateModal from './stock-updatemodal';
 
