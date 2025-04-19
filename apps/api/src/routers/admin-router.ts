@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  login,
   getAllUsers,
   getUserById,
   createUser,
@@ -15,6 +16,7 @@ import {
 const router = express.Router();
 
 // Hanya Super Admin yang bisa mengakses daftar user
+router.route('/login').post(login);
 router.route('/users').get(superAdminMiddleware, getAllUsers);
 router.route('/users/:id').get(superAdminMiddleware, getUserById);
 

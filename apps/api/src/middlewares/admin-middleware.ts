@@ -10,24 +10,27 @@ export async function VerifyToken(
   next: NextFunction,
 ) {
   try {
+    // Mengambil token dari cookies
     const token = req.cookies.token; // Ambil token dari cookies
+
     if (!token) {
       res.status(401).json({ message: 'No token provided' });
-      return; // Hentikan eksekusi fungsi
+      return; // Hentikan eksekusi fungsi jika tidak ada token
     }
 
-    // Verifikasi token
+    // Verifikasi token menggunakan secret key dari env
     const verifiedUser = jwt.verify(
       token,
-      process.env.JWT_SECRET_KEY as string,
-    ) as CustomJwtPayload;
+      process.env.JWT_SECRET_KEY as string, // Secret key yang digunakan saat membuat JWT
+    ) as CustomJwtPayload; // Menyatakan bahwa token yang terverifikasi memiliki tipe CustomJwtPayload
 
-    // Simpan data user di request object
-    req.user = verifiedUser;
+    // Simpan data user yang sudah terverifikasi dalam request object
+    req.user = verifiedUser; // Payload akan menyertakan data user (id, role)
 
     next(); // Lanjutkan ke middleware atau handler berikutnya
   } catch (error) {
-    next(error); // Lanjutkan ke error handler
+    console.error('Token verification failed:', error);
+    res.status(401).json({ message: 'Token verification failed' });
   }
 }
 
