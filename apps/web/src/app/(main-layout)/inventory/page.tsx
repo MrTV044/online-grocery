@@ -1,46 +1,78 @@
-// app/inventory/page.tsx
 'use client';
 
-import { useState } from 'react';
-import InventoryTable from '../../../component/inventory-table';
-import StoreSelector from '../../../component/store-selector';
+import { useState, useEffect } from 'react';
+import InventoryTable from '../../../component/inventory-table'; // Tabel untuk menampilkan data stok
+import StoreSelector from '../../../component/store-selector'; // Selector untuk memilih toko
 import { Product, Store } from '../../types/inventory';
 
-// Data contoh toko dan produk
+// Simulasi data toko
 const stores: Store[] = [
   { id: '1', name: 'Toko A' },
   { id: '2', name: 'Toko B' },
 ];
 
-const products: Product[] = [
-  { id: '1', name: 'Produk 1', stock: 10, storeId: '1' },
-  { id: '2', name: 'Produk 2', stock: 5, storeId: '1' },
-  { id: '3', name: 'Produk 3', stock: 20, storeId: '2' },
-];
-
 export default function InventoryPage() {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]); // Produk yang ditampilkan
+  const [loading, setLoading] = useState(false); // Status loading
+  const [error, setError] = useState<string | null>(null); // Error handling
 
-  // Filter produk berdasarkan toko yang dipilih
+  // Fungsi untuk memilih toko
   const handleStoreSelect = (store: Store) => {
     setSelectedStore(store);
-    const filtered = products.filter((product) => product.storeId === store.id);
-    setFilteredProducts(filtered);
   };
 
+  // Fetch stok berdasarkan toko yang dipilih
+  useEffect(() => {
+    if (selectedStore) {
+      setLoading(true);
+      setError(null);
+
+      // Fetch data dari API
+      fetch(
+        `http://localhost:8000/api/v1/inventory/store/${selectedStore.id}/stocks`,
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setProducts(
+            data.map(
+              (item: {
+                product: { id: string; name: string };
+                quantity: number;
+                store: { id: string };
+              }) => ({
+                id: item.product.id,
+                name: item.product.name,
+                stock: item.quantity,
+                storeId: item.store.id,
+              }),
+            ),
+          );
+        })
+        .catch(() => {
+          setError('Failed to fetch data');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [selectedStore]); // Hanya mem-fetch ulang ketika toko dipilih
+
   return (
-    <div className="p-6">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Inventory Management</h1>
 
-      {/* Pilih toko (hanya untuk admin utama) */}
+      {/* Selector untuk memilih toko */}
       <StoreSelector stores={stores} onSelectStore={handleStoreSelect} />
 
-      {/* Tabel inventory */}
-      {selectedStore ? (
-        <InventoryTable products={filteredProducts} store={selectedStore} />
+      {/* Menampilkan data stok produk */}
+      {'}'}
+      {loading ? (
+        <div className="text-gray-500">Memuat data stok...</div>
+      ) : error ? (
+        <div className="text-red-500">{error}</div>
       ) : (
-        <p className="text-gray-500">Silakan pilih toko terlebih dahulu.</p>
+        <InventoryTable products={products} store={selectedStore as Store} />
       )}
     </div>
   );

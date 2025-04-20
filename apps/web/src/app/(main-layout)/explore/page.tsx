@@ -5,7 +5,12 @@ import CategoryCard from '@/component/category-card';
 
 export default function Explore() {
   const [categories, setCategories] = useState<
-    { title: string; image: string; bgColor: string }[]
+    {
+      name: string;
+      image: string;
+      bgColor: string;
+      products?: { ProductImage?: { imageUrl: string }[] }[];
+    }[]
   >([]); // Menyimpan data kategori produk
   const [searchQuery, setSearchQuery] = useState(''); // Menyimpan query pencarian
 
@@ -44,8 +49,11 @@ export default function Explore() {
         {categories.map((cat, index) => (
           <CategoryCard
             key={index}
-            title={cat.title}
-            image={cat.image || '/default-category-image.jpg'} // Gambar default jika tidak ada
+            title={cat.name}
+            image={
+              cat.products?.[0]?.ProductImage?.[0]?.imageUrl ||
+              '/default-category-image.jpg'
+            } // Gambar default jika tidak ada
             bgColor={cat.bgColor || 'bg-gray-100'} // Default warna latar belakang
           />
         ))}

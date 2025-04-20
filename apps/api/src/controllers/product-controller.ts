@@ -315,7 +315,11 @@ export async function getCategoriesAdmin(
         },
       },
       include: {
-        products: true, // Menampilkan produk terkait kategori
+        products: {
+          include: {
+            ProductImage: { select: { imageUrl: true } }, // Menampilkan gambar produks
+          },
+        }, // Menampilkan produk terkait kategori
       },
     });
     res.status(200).json(categories);

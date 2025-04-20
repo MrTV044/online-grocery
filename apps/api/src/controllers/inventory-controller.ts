@@ -13,8 +13,16 @@ export async function getStockByStore(
     const stocks = await prisma.stock.findMany({
       where: { storeId },
       include: {
-        product: true, // Menampilkan produk terkait stok
-        store: true, // Menampilkan toko terkait
+        product: {
+          select: {
+            name: true, // Menampilkan nama produk
+          },
+        },
+        store: {
+          select: {
+            name: true, // Menampilkan nama toko
+          },
+        },
         stockLogs: true, // Menampilkan log perubahan stok
       },
     });

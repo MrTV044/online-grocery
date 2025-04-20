@@ -57,6 +57,7 @@ export default function ReportsPage() {
   });
 
   // Fetch user data
+  // Fetch user data with better error handling
   const fetchUser = useCallback(async () => {
     try {
       setLoading((prev) => ({ ...prev, user: true }));
@@ -66,14 +67,15 @@ export default function ReportsPage() {
         credentials: 'include',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
+      if (response.status === 401) {
+        throw new Error('Unauthorized: Please login again to continue');
+      } else if (!response.ok) {
+        throw new Error(`Failed to fetch user data: ${response.statusText}`);
       }
 
       const userData: User = await response.json();
       setUser(userData);
 
-      // Set storeId for store admins
       if (userData.role === 'store_admin' && userData.storeId) {
         setStoreId(userData.storeId);
       }
@@ -82,12 +84,16 @@ export default function ReportsPage() {
         ...prev,
         user: err instanceof Error ? err.message : 'Unknown error',
       }));
+      // Consider redirecting to login page if unauthorized
+      // if (err instanceof Error && err.message.includes('Unauthorized')) {
+      //   window.location.href = '/login';
+      // }
     } finally {
       setLoading((prev) => ({ ...prev, user: false }));
     }
   }, []);
 
-  // Fetch stores list
+  // Fetch stores list with better error handling
   const fetchStores = useCallback(async () => {
     try {
       setLoading((prev) => ({ ...prev, stores: true }));
@@ -97,21 +103,30 @@ export default function ReportsPage() {
         credentials: 'include',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch stores');
+      if (response.status === 404) {
+        console.warn('Stores endpoint not found, using empty stores list');
+        setStores([]);
+        return;
+      } else if (!response.ok) {
+        throw new Error(`Failed to fetch stores: ${response.statusText}`);
       }
 
       const storesData = await response.json();
       setStores(storesData);
     } catch (err) {
+      console.error('Store fetch error:', err);
       setError((prev) => ({
         ...prev,
         stores: err instanceof Error ? err.message : 'Unknown error',
       }));
+      setStores([]); // Set empty stores array on error
     } finally {
       setLoading((prev) => ({ ...prev, stores: false }));
     }
   }, []);
+
+  // Fetch stores list
+  // (This duplicate declaration has been removed to avoid redeclaration errors)
 
   // Fetch sales reports
   const fetchSalesReports = useCallback(

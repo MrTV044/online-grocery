@@ -18,3 +18,9 @@ export interface StockJournal {
   change: number; // Perubahan stok (bisa positif atau negatif)
   timestamp: string;
 }
+
+export interface StoreSelectorProps {
+  stores: Store[];
+
+  onSelect: (store: Store) => void;
+}
