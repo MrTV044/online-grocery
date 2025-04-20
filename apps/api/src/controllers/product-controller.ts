@@ -170,6 +170,7 @@ export async function addToCart(
 }
 
 // ADMIN SITE - Functions to Manage Products (Admin)
+// Backend: Fetching products from Prisma
 export async function getProductsAdmin(
   _req: Request,
   res: Response,
@@ -183,10 +184,10 @@ export async function getProductsAdmin(
         Store: true,
       },
     });
-    res.json(products);
+    res.json(products); // Kirimkan data produk yang sudah diolah dalam format JSON
   } catch (error) {
     console.error('Error fetching products:', error);
-    next(error);
+    next(error); // Error handler
   }
 }
 
@@ -211,7 +212,16 @@ export async function createProduct(
     }
 
     const newProduct = await prisma.product.create({
-      data: { name, description, price, categoryId, storeId },
+      data: {
+        name,
+        description,
+        price,
+        categoryId,
+        storeId,
+        weight: req.body.weight,
+        Category: { connect: { id: categoryId } },
+        Store: { connect: { id: storeId } },
+      },
     });
 
     res.status(201).json(newProduct);
@@ -290,17 +300,24 @@ export async function uploadProductImage(
 
 // Fungsi untuk mendapatkan daftar kategori produk (Admin)
 export async function getCategoriesAdmin(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
+  const searchQuery = req.query.search || ''; // Ambil parameter search dari query string
+  console.log('Search Query:', searchQuery);
   try {
     const categories = await prisma.category.findMany({
+      where: {
+        name: {
+          contains: searchQuery.toString(), // Memfilter kategori berdasarkan nama yang mengandung query pencarian
+          mode: 'insensitive', // Membuat pencarian tidak sensitif terhadap huruf besar/kecil
+        },
+      },
       include: {
         products: true, // Menampilkan produk terkait kategori
       },
     });
-
     res.status(200).json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error);
