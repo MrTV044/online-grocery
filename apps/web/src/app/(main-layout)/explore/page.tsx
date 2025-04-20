@@ -27,14 +27,10 @@ export default function Explore() {
     fetchCategories();
   }, [searchQuery]); // Efek ini dijalankan setiap kali searchQuery berubah
 
+  console.log(categories);
   const handleSearch = (query: string) => {
     setSearchQuery(query.toLowerCase()); // Memperbarui query pencarian untuk memfilter kategori
   };
-
-  // Memfilter kategori berdasarkan pencarian
-  const filteredCategories = categories.filter(
-    (cat) => cat.title?.toLowerCase().includes(searchQuery), // Memastikan pencarian tidak sensitif terhadap huruf besar/kecil
-  );
 
   return (
     <main className="p-6 pb-20 min-h-screen bg-white">
@@ -45,7 +41,7 @@ export default function Explore() {
 
       {/* Category Grid */}
       <div className="grid grid-cols-2 gap-4 mt-6">
-        {filteredCategories.map((cat, index) => (
+        {categories.map((cat, index) => (
           <CategoryCard
             key={index}
             title={cat.title}

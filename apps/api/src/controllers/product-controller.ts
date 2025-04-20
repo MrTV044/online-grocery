@@ -212,7 +212,16 @@ export async function createProduct(
     }
 
     const newProduct = await prisma.product.create({
-      data: { name, description, price, categoryId, storeId },
+      data: {
+        name,
+        description,
+        price,
+        categoryId,
+        storeId,
+        weight: req.body.weight,
+        Category: { connect: { id: categoryId } },
+        Store: { connect: { id: storeId } },
+      },
     });
 
     res.status(201).json(newProduct);

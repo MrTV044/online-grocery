@@ -160,10 +160,10 @@ model Product {
 
 model ProductImage {
   id        Int    @id @default(autoincrement())
-  productId String
+  productId Int
   imageUrl  String
 
-  Product Product @relation(fields: [id], references: [id])
+  Product Product @relation(fields: [productId], references: [id])
 }
 
 // Tabel Kategori Produk
@@ -293,7 +293,7 @@ model CartItem {
  * ------------------------------------ ORDER -----------------------------------
  */
 model Order {
-  id               String      @id @default(uuid())
+  id               Int         @id @default(autoincrement())
   userId           Int
   storeId          Int
   orderNumber      String      @unique
@@ -322,8 +322,8 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String
+  id        Int      @id @default(autoincrement())
+  orderId   Int
   productId Int
   quantity  Int
   price     Float
